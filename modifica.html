@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+
+  <title>Modificar - Sincronización</title>
+
+  <script src="js/registraServiceWorker.js"></script>
+
+  <meta name="viewport" content="width=device-width">
+  <meta name="theme-color" content="#fffbfe">
+  <link rel="icon" sizes="48x48" href="favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <script src="ungap/custom-elements.js"></script>
+
+  <script type="module" src="js/configura.js"></script>
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/transicion_pestanas.css">
+
+  <link rel="stylesheet" href="css/dark-hc.css">
+  <link rel="stylesheet" href="css/dark-mc.css">
+  <link rel="stylesheet" href="css/dark.css">
+  <link rel="stylesheet" href="css/light-hc.css">
+  <link rel="stylesheet" href="css/light-mc.css">
+  <link rel="stylesheet" href="css/light.css">
+
+
+  <script type="module" src="js/configura.js"></script>
+  <script type="module" src="lib/js/muestraError.js"></script>
+  <script type="module" src="lib/js/muestraObjeto.js"></script>
+  <script type="module" src="js/bd/alumnoBusca.js"></script>
+  <script type="module" src="js/bd/alumnoElimina.js"></script>
+  <script type="module" src="js/bd/alumnoModifica.js"></script>
+
+  <script>
+    // Obtiene los parámetros de la página.
+    const parametros = new URL(location.href).searchParams
+    const paramId = parametros.get("id")
+  </script>
+
+</head>
+<body onload="
+  if (paramId !== null) {
+    alumnoBusca(paramId)
+      .then(alumno => {
+        if (alumno === undefined) throw new Error('Alumno no encontrado.')
+        muestraObjeto(forma, {
+          alumno: { value: alumno.ALU_NOMBRE },
+          materia: { value: alumno.ALU_ASIGNATURA },
+          turno: { value: alumno.ALU_TURNO }
+        })
+      })
+      .catch(muestraError)
+  }
+">
+
+<form id="forma" onsubmit="
+  event.preventDefault()
+  if (paramId !== null) {
+    const ALU_ID = paramId
+    const ALU_NOMBRE = forma.alumno.value.trim()
+    const ALU_ASIGNATURA = forma.materia.value.trim()
+    const ALU_TURNO = forma.turno.value.trim()
+    const modelo = { ALU_ID, ALU_NOMBRE, ALU_ASIGNATURA, ALU_TURNO }
+    alumnoModifica(modelo)
+      .then(() => location.href = 'index.html')
+      .catch(muestraError)
+  }
+">
+
+  <md-top-app-bar>
+    <center><h1>Modificar Alumno</h1></center>
+  </md-top-app-bar>
+
+  <main>
+    
+
+    <input name="id" type="hidden">
+
+    <p>
+      <p>Nombre del alumno</p>
+      <label class="md-filled-text-field">
+        <input required placeholder="Nombre del alumno*" name="alumno">
+        <span>Nombre del alumno *</span>
+        <small>Obligatorio</small>
+      </label>
+    </p>
+
+    <p>
+      <p>Matricula</p>
+      <label class="md-filled-text-field">
+        <input required placeholder="Matricula*" name="materia">
+        <span>Matricula *</span>
+        <small>Obligatorio</small>
+      </label>
+    </p>
+
+    <p>
+      <p>Grupo</p>
+      <label class="md-filled-text-field">
+        <input required placeholder="Grupo*" name="turno">
+        <span>Grupo *</span>
+        <small>Obligatorio</small>
+      </label>
+    </p>
+    <p>
+      <button class="md-filled-button" type="button" onclick="location.href='index.html'">
+        <span class="material-symbols-outlined" style="vertical-align: middle;">cancel</span>
+        <span style="vertical-align: middle;">Cancelar</span>
+      </button>
+
+      <button class="md-filled-button" type="submit">
+        <span class="material-symbols-outlined" style="vertical-align: middle;">save</span>
+        <span style="vertical-align: middle;">Guardar</span>
+      </button>
+
+      <button class="md-filled-button" type="button" onclick="
+        if (paramId !== null && confirm('Confirma la eliminación')) {
+          alumnoElimina(paramId)
+            .then(() => location.href = 'index.html')
+            .catch(muestraError)
+        }">
+        <span class="material-symbols-outlined" style="vertical-align: middle;">delete</span>
+        <span style="vertical-align: middle;">Borrar</span>
+      </button>
+    </p>
+
+  </main>
+
+</form>
+</body>
